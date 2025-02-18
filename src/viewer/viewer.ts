@@ -26,6 +26,9 @@ class Viewer {
 
   private _labelRenderer: CSS2DRenderer;
 
+  private _highlightedObject: THREE.Object3D | null = null;
+  private _originalMaterials = new Map<THREE.Object3D, THREE.Material | THREE.Material[]>();
+
   constructor(container: HTMLDivElement) {
     this.id = uuid.v4();
 
@@ -171,6 +174,63 @@ class Viewer {
       this.status.next("error");
       throw new Error("Failed to load model");
     }
+  }
+
+  public highlightObject(object: THREE.Object3D | null) {
+    if (this._highlightedObject) {
+      this._resetHighlight();
+    }
+
+    if (object) {
+      this._storeOriginalMaterials(object);
+      this._applyHighlightMaterial(object);
+      this._highlightedObject = object;
+    }
+
+    this.updateViewer();
+  }
+
+  private _storeOriginalMaterials(object: THREE.Object3D) {
+    if (object instanceof THREE.Mesh) {
+      this._originalMaterials.set(object, object.material);
+    }
+
+    object.traverse(child => {
+      if (child instanceof THREE.Mesh) {
+        this._originalMaterials.set(child, child.material);
+      }
+    });
+  }
+
+  private _applyHighlightMaterial(object: THREE.Object3D) {
+    const highlightMaterial = new THREE.MeshBasicMaterial({
+      color: 0xff0000,
+      transparent: true,
+      opacity: 0.8
+    });
+
+    if (object instanceof THREE.Mesh) {
+      object.material = highlightMaterial;
+    }
+
+    object.traverse(child => {
+      if (child instanceof THREE.Mesh) {
+        child.material = highlightMaterial;
+      }
+    });
+  }
+
+  private _resetHighlight() {
+    if (!this._highlightedObject) return;
+
+    this._originalMaterials.forEach((material, object) => {
+      if (object instanceof THREE.Mesh) {
+        object.material = material;
+      }
+    });
+
+    this._originalMaterials.clear();
+    this._highlightedObject = null;
   }
 
   /**

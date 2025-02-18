@@ -36,3 +36,41 @@ body {
   font-family: Arial, sans-serif;
   font-size: 12px;
 }
+
+.widget-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: rgba(0, 0, 0, 0.8);
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  max-width: 250px;
+  max-height: 80vh;
+  overflow: auto;
+  backdrop-filter: blur(2px);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.widget-header {
+  font-weight: 600;
+  margin-bottom: 8px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #eee;
+}
+
+.tree-node {
+  transition: background-color 0.2s;
+  font-size: 14px;
+  text-align: left;
+}
+
+.tree-node:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.widget-placeholder {
+  color: #666;
+  font-style: italic;
+  padding: 8px;
+}
