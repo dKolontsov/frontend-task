@@ -16,3 +16,23 @@
 body {
   margin: 0px;
 }
+
+.status-label {
+  background: rgba(0, 0, 0, 0.8);
+  border-radius: 6px;
+  padding: 6px 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transform: translate(-50%, -50%);
+  backdrop-filter: blur(2px);
+}
+.status-1 { color: #ff4444; } /* Not Started */ 
+.status-2 { color: #ffd700; } /* In Progress */
+.status-3 { color: #2196F3;}  /* Partially Installed */
+.status-4 { color: #4CAF50; } /* Installed */
+
+.status-text {
+  font-family: Arial, sans-serif;
+  font-size: 12px;
+}

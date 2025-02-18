@@ -1,6 +1,6 @@
-import "./App.css";
-import Loading from "./components/loading";
-import ViewerComponent from "./components/viewer-component";
+import './App.css';
+import Loading from './components/loading';
+import ViewerComponent from './components/viewer-component';
 
 function App() {
   return (

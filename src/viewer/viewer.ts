@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
 import CameraControls from "camera-controls";
 import axios from "axios";
 import parseJSON, { findThreeJSJSON } from "../utils/parse-json";
@@ -22,6 +23,8 @@ class Viewer {
   public model: THREE.Object3D | undefined;
 
   public status = new RX.BehaviorSubject<ViewerStatus>("idle");
+
+  private _labelRenderer: CSS2DRenderer;
 
   constructor(container: HTMLDivElement) {
     this.id = uuid.v4();
@@ -71,6 +74,14 @@ class Viewer {
     const ambientLight = new THREE.AmbientLight(0xffffff, 1.5);
     this.scene.add(ambientLight);
 
+    // Инициализация CSS2D рендерера
+    this._labelRenderer = new CSS2DRenderer();
+    this._labelRenderer.setSize(window.innerWidth, window.innerHeight);
+    this._labelRenderer.domElement.style.position = 'absolute';
+    this._labelRenderer.domElement.style.top = '0';
+    this._labelRenderer.domElement.style.pointerEvents = 'none';
+    container.appendChild(this._labelRenderer.domElement);
+
     window.addEventListener("resize", this.resize);
 
     this.loadModel().then((object3d) => {
@@ -97,6 +108,7 @@ class Viewer {
     this.camera.updateProjectionMatrix();
     this._renderer.setSize(window.innerWidth, window.innerHeight);
     this._renderNeeded = true;
+    this._labelRenderer.setSize(window.innerWidth, window.innerHeight);
     this.updateViewer();
   };
 
@@ -110,7 +122,26 @@ class Viewer {
     }
 
     window.requestAnimationFrame(this._render);
+    this.updateLabels();
   };
+
+  private createStatusLabel(object: THREE.Object3D) {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'status-label';
+    
+    const status = object.userData.propertyValue;
+    wrapper.innerHTML = `
+      <div class="status-text status-${status.statusCode}">${status.statusText}</div>
+    `;
+
+    const label = new CSS2DObject(wrapper);
+    label.position.set(0, 0, 0);
+    object.add(label);
+  }
+
+  private updateLabels() {
+    this._labelRenderer.render(this.scene, this.camera);
+  }
 
   private async loadModel() {
     this.status.next("loading");
@@ -165,6 +196,7 @@ class Viewer {
           statusCode: statusIndex,
           statusText: progressStatuses[statusIndex],
         };
+        this.createStatusLabel(child);
       }
     });
 
@@ -179,6 +211,7 @@ class Viewer {
     this._cameraControl.dispose();
     this.scene.clear();
     this._renderNeeded = false;
+    this._labelRenderer.domElement.remove();
   }
 }
 
